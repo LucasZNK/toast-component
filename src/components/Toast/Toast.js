@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { memo, useEffect } from "react";
 import {
   AlertOctagon,
   AlertTriangle,
   CheckCircle,
   Info,
   X,
-} from 'react-feather';
+} from "react-feather";
 
-import VisuallyHidden from '../VisuallyHidden';
+import VisuallyHidden from "../VisuallyHidden";
 
-import styles from './Toast.module.css';
+import styles from "./Toast.module.css";
 
 const ICONS_BY_VARIANT = {
   notice: Info,
@@ -18,16 +18,30 @@ const ICONS_BY_VARIANT = {
   error: AlertOctagon,
 };
 
-function Toast() {
+function Toast({ message, variant, removeToast, id, timeVisible = 2000 }) {
+  let Icon = ICONS_BY_VARIANT[variant];
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      removeToast(id);
+    }, timeVisible);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, []);
+
   return (
-    <div className={`${styles.toast} ${styles.notice}`}>
+    <div className={`${styles.toast} ${styles[variant]}`}>
       <div className={styles.iconContainer}>
-        <Info size={24} />
+        <Icon size={24} />
       </div>
-      <p className={styles.content}>
-        16 photos have been uploaded
-      </p>
-      <button className={styles.closeButton}>
+      <p className={styles.content}>{message}</p>
+      <button
+        onClick={() => {
+          removeToast(id);
+        }}
+        className={styles.closeButton}
+      >
         <X size={24} />
         <VisuallyHidden>Dismiss message</VisuallyHidden>
       </button>
@@ -35,4 +49,4 @@ function Toast() {
   );
 }
 
-export default Toast;
+export default memo(Toast);
